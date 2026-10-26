@@ -1,0 +1,786 @@
+{
+  "projectName": "demo-shop-fullstack-split",
+  "summary": "為 demo-shop-monolith 打造前後端一起分離的 Agent Skill。執行後會：1) 產出可執行的 Node.js + Express.js 後端 API（含身分驗證、訂單/商品/會員/優惠券/結帳/報表等模組、HMAC-SHA256 前後端簽章、稽核日誌、統一錯誤處理、機敏環境變數、可切換 mock/seed）；2) 改寫前端（HTML + 原生 JS）改為呼叫 API，移除前端商業邏輯與金鑰；3) 兩者輸出在同一個 ZIP 的 backend/ 與 frontend/ 目錄，解壓即可分開啟動並運作。觸發關鍵字：split, express, api, signkey, fullstack, separation。",
+  "detectedStack": "原生 HTML/CSS/JavaScript（無建置流程）、localStorage 假資料庫與商業邏輯皆在前端",
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/public/settings",
+      "module": "public",
+      "description": "提供前端顯示所需公開設定（siteName、currency、taxRate、shipping、vipDiscount 等，不含任何秘密金鑰）",
+      "sourceFiles": [
+        "js/config.js"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/register",
+      "module": "auth",
+      "description": "註冊新會員，建立使用者、發送歡迎簡訊、簽發 JWT 與 session signKey",
+      "sourceFiles": [
+        "js/auth.js"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "module": "auth",
+      "description": "帳密登入；支援 ADMIN_MASTER_PASSWORD；回傳 JWT 與 session signKey（短效）",
+      "sourceFiles": [
+        "js/auth.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/profile",
+      "module": "auth",
+      "description": "取得目前登入者資訊（需 JWT）",
+      "sourceFiles": [
+        "js/auth.js"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "module": "auth",
+      "description": "登出（伺服器側撤銷 session signKey）",
+      "sourceFiles": [
+        "js/auth.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/products",
+      "module": "products",
+      "description": "商品查詢（keyword/category/sort），後端執行搜尋/篩選/排序",
+      "sourceFiles": [
+        "js/shop.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/products/:id",
+      "module": "products",
+      "description": "單一商品",
+      "sourceFiles": [
+        "js/shop.js"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/products",
+      "module": "products",
+      "description": "新增商品（admin）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/products/:id",
+      "module": "products",
+      "description": "更新商品欄位（售價、庫存等）（admin/staff 視權限）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/products/:id",
+      "module": "products",
+      "description": "刪除商品（admin）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/coupons/validate",
+      "module": "pricing",
+      "description": "驗證優惠碼（code、subtotal、user.vip）",
+      "sourceFiles": [
+        "js/pricing.js"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/pricing/quote",
+      "module": "pricing",
+      "description": "計算購物車明細、小計、折扣、運費、稅金、總計（搬移 pricing 商業邏輯）",
+      "sourceFiles": [
+        "js/pricing.js",
+        "js/shop.js"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/checkout",
+      "module": "checkout",
+      "description": "結帳：庫存檢查與扣除、優惠券核銷遞增、建立訂單、金流代扣（server-side mock）、簡訊通知",
+      "sourceFiles": [
+        "js/shop.js",
+        "js/payment.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders",
+      "module": "orders",
+      "description": "我的訂單列表（依使用者）",
+      "sourceFiles": [
+        "js/shop.js"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/orders/:id/cancel",
+      "module": "orders",
+      "description": "取消訂單並退回庫存（限制狀態，同原邏輯）",
+      "sourceFiles": [
+        "js/shop.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/orders",
+      "module": "orders",
+      "description": "後台訂單查詢（狀態過濾、排序），支援匯出使用",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/orders/:id/status",
+      "module": "orders",
+      "description": "更新訂單狀態（shipped 觸發簡訊）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/export/orders.csv",
+      "module": "export",
+      "description": "匯出訂單 CSV（admin/staff）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/users",
+      "module": "users",
+      "description": "後台會員列表（隱碼處理）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/users/:id",
+      "module": "users",
+      "description": "變更 VIP 與停權（admin）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/users/:id",
+      "module": "users",
+      "description": "刪除會員（admin）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/coupons",
+      "module": "coupons",
+      "description": "優惠券列表（admin/staff）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/coupons/:code/toggle",
+      "module": "coupons",
+      "description": "啟用/停用優惠券（admin/staff）",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/stats",
+      "module": "stats",
+      "description": "營運統計：營收、毛利、訂單數、平均客單、低庫存、熱銷商品、會員數",
+      "sourceFiles": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/reset",
+      "module": "devtools",
+      "description": "重置假資料至 seed（僅 development 可用）",
+      "sourceFiles": [
+        "js/admin.js",
+        "js/db.js",
+        "js/data/*"
+      ]
+    }
+  ],
+  "architecture": "skill-root/\n  SKILL.md\n  README.md\n  references/\n    api-inventory.md\n    frontend-rewrite.md\n    architecture.md\n    config-guide.md\n    sign-key.md\n    security.md\n    docs-page.md\n  templates/\n    backend/\n      .env.example\n      package.json\n      src/\n        server.js\n        app.js\n        config/\n          index.js\n          security.js\n          signkey.js\n        middlewares/\n          auth.js\n          signKey.js\n          error.js\n          audit.js\n          cors.js\n        utils/\n          crypto.js\n          logger.js\n          masker.js\n          nonce-store.js\n          csv.js\n        repositories/\n          db.js\n          seed/\n            products.json\n            users.json\n            orders.json\n            coupons.json\n        services/\n          auth.service.js\n          product.service.js\n          pricing.service.js\n          order.service.js\n          coupon.service.js\n          payment.service.js\n          sms.service.js\n          stats.service.js\n          user.service.js\n        controllers/\n          auth.controller.js\n          product.controller.js\n          pricing.controller.js\n          order.controller.js\n          coupon.controller.js\n          export.controller.js\n          stats.controller.js\n          user.controller.js\n        routes/\n          index.js\n          auth.routes.js\n          product.routes.js\n          pricing.routes.js\n          order.routes.js\n          coupon.routes.js\n          export.routes.js\n          stats.routes.js\n          user.routes.js\n    frontend/\n      sdk/\n        apiClient.js\n        authClient.js\n        pricingClient.js\n        storage.js\n      pages/\n        shop.js\n        admin.js\n        login.js\n      index.html\n      admin.html\n      login.html\n    docs/\n      index.html",
+  "files": [
+    {
+      "path": "SKILL.md",
+      "purpose": "Skill 主說明：目標、前置檢查、逐步 checklist（同時產出 backend + frontend）、驗證步驟、參考文件連結。開頭含 YAML frontmatter（name/description）。",
+      "sources": [
+        "README.md"
+      ]
+    },
+    {
+      "path": "README.md",
+      "purpose": "教學：如何安裝此 Skill（.cursor/skills/<name>/ 或 ~/.cursor/skills/<name>/）、如何在 Cursor/Claude 觸發與使用選項。",
+      "sources": []
+    },
+    {
+      "path": "references/api-inventory.md",
+      "purpose": "列出本計畫後端 API 清單（method/path/來源檔/說明/權限/是否需要 signKey），對應 endpoints 欄位。",
+      "sources": [
+        "js/*.js",
+        "js/data/*.js",
+        "README.md"
+      ]
+    },
+    {
+      "path": "references/frontend-rewrite.md",
+      "purpose": "逐檔說明原前端如何改寫成呼叫 API、搬遷/刪除哪些邏輯、新路徑與初始化順序。",
+      "sources": [
+        "index.html",
+        "login.html",
+        "admin.html",
+        "js/*.js",
+        "css/style.css"
+      ]
+    },
+    {
+      "path": "references/architecture.md",
+      "purpose": "最終輸出目錄規劃（frontend/ + backend/）與後端分層（routes/controllers/services/repositories/middlewares/config/utils），命名規範與擴充建議。",
+      "sources": [
+        "README.md"
+      ]
+    },
+    {
+      "path": "references/config-guide.md",
+      "purpose": "參數化規範：env 與 config 層級、development/staging/production 差異、模組開關（signKey、audit、error detail、mock payment/SMS、CORS 白名單）、mock 切換。",
+      "sources": [
+        "js/config.js"
+      ]
+    },
+    {
+      "path": "references/sign-key.md",
+      "purpose": "HMAC-SHA256 簽章設計：簽名字串（timestamp|nonce|method|path|body）與 header 名稱、有效時間窗、nonce 防重放、per-session signKey 核發/撤銷、前後端範例。",
+      "sources": []
+    },
+    {
+      "path": "references/security.md",
+      "purpose": "資安防護清單與實作法：稽核日誌（遮罩密碼/卡號/token/金鑰）、統一錯誤處理不外洩 stack、環境變數管理、RBAC、輸入驗證、速率限制（可選）、CORS。",
+      "sources": [
+        "js/auth.js",
+        "js/payment.js",
+        "js/config.js"
+      ]
+    },
+    {
+      "path": "references/docs-page.md",
+      "purpose": "要求輸出 docs/index.html：啟用步驟、env 範例、啟動指令、API 範例 curl、前端整合說明、常見問題。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/.env.example",
+      "purpose": "環境變數樣板（不含機敏值）：JWT_SECRET、ADMIN_MASTER_PASSWORD、PAYMENT_SECRET_KEY、SMS_API_KEY、SIGNKEY_ENABLED、SIGNKEY_WINDOW_MS、NONCE_TTL_MS 等。",
+      "sources": [
+        "js/config.js"
+      ]
+    },
+    {
+      "path": "templates/backend/package.json",
+      "purpose": "後端執行相依：express、cors、helmet、morgan、jsonwebtoken、uuid、dayjs 等與啟動 script。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/server.js",
+      "purpose": "讀取 env、建立 app、監聽 port、關閉處理。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/app.js",
+      "purpose": "註冊全域中介層（CORS、JSON 解析、簽章驗證、JWT、稽核日誌、錯誤處理）、掛載 routes。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/config/index.js",
+      "purpose": "集中化設定：環境、開關（signKey/audit/mock）、稅率/運費/VIP 折扣/免運門檻、CORS 白名單等。",
+      "sources": [
+        "js/config.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/config/security.js",
+      "purpose": "資安相關設定：遮罩欄位清單、錯誤細節開關、速率限制參數。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/config/signkey.js",
+      "purpose": "簽章設定：雜湊演算法、有效時間窗、時鐘偏移、nonce 儲存策略與 TTL。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/middlewares/auth.js",
+      "purpose": "JWT 驗證與角色授權（admin/staff/customer）。",
+      "sources": [
+        "js/auth.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/middlewares/signKey.js",
+      "purpose": "驗證 HMAC 簽章（timestamp/nonce/method/path/body），跳過白名單路由（/public/settings、/auth/login、/auth/register）。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/middlewares/error.js",
+      "purpose": "統一錯誤處理：友善訊息、HTTP 狀態碼、隱藏 stack；在開發模式可選擇回傳 traceId。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/middlewares/audit.js",
+      "purpose": "稽核日誌：請求/回應基本資訊、角色、遮罩敏感欄位（密碼、卡號、token、金鑰）。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/middlewares/cors.js",
+      "purpose": "依環境載入 CORS 白名單。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/utils/crypto.js",
+      "purpose": "HMAC、隨機 nonce、安全比較、遮罩工具。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/utils/logger.js",
+      "purpose": "簡易 log（info/error/debug）與稽核串接。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/utils/masker.js",
+      "purpose": "敏感資料遮罩：email/phone/card/token。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/utils/nonce-store.js",
+      "purpose": "nonce 儲存與過期管理（memory；可替換 Redis）。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/utils/csv.js",
+      "purpose": "CSV 轉換工具（支援 UTF-8 BOM）。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/repositories/db.js",
+      "purpose": "簡易資料存取層（檔案 JSON 或記憶體 mock），提供 CRUD 與 nextId、transaction-like 操作（for 結帳）。",
+      "sources": [
+        "js/db.js",
+        "js/data/*.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/repositories/seed/products.json",
+      "purpose": "商品 seed",
+      "sources": [
+        "js/data/products.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/repositories/seed/users.json",
+      "purpose": "會員 seed（移除明碼密碼；轉為雜湊或 demo 明碼標註）",
+      "sources": [
+        "js/data/users.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/repositories/seed/orders.json",
+      "purpose": "訂單 seed",
+      "sources": [
+        "js/data/orders.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/repositories/seed/coupons.json",
+      "purpose": "優惠券 seed",
+      "sources": [
+        "js/data/coupons.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/services/auth.service.js",
+      "purpose": "登入/註冊、雜湊密碼、簽發/撤銷 JWT、核發 session signKey、權限檢查、封鎖狀態檢查、簡訊歡迎。",
+      "sources": [
+        "js/auth.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/services/product.service.js",
+      "purpose": "商品搜尋/篩選/排序、CRUD、存量檢查。",
+      "sources": [
+        "js/shop.js",
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/services/pricing.service.js",
+      "purpose": "價格計算、VIP 折扣、優惠碼驗證、運費與稅金計算。",
+      "sources": [
+        "js/pricing.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/services/order.service.js",
+      "purpose": "建立/查詢/取消/更新狀態，含庫存調整與優惠券使用量遞增。",
+      "sources": [
+        "js/shop.js",
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/services/coupon.service.js",
+      "purpose": "優惠券查詢、啟用/停用、驗證與使用量管理。",
+      "sources": [
+        "js/pricing.js",
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/services/payment.service.js",
+      "purpose": "後端代扣（mock），根據卡號模擬成功/失敗；以環境變數帶入金流 key。",
+      "sources": [
+        "js/payment.js",
+        "js/config.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/services/sms.service.js",
+      "purpose": "簡訊發送（mock，可關閉），遮罩與稽核。",
+      "sources": [
+        "js/auth.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/services/stats.service.js",
+      "purpose": "營運報表計算（營收/毛利/熱銷/低庫存/會員數/平均客單）。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/services/user.service.js",
+      "purpose": "會員列表、VIP/停權/刪除（role 檢查與審計）。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/controllers/auth.controller.js",
+      "purpose": "連接 service 與路由，輸入驗證與回應格式。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/controllers/product.controller.js",
+      "purpose": "商品 API 控制器。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/controllers/pricing.controller.js",
+      "purpose": "報價 API 控制器。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/controllers/order.controller.js",
+      "purpose": "訂單/結帳 API 控制器。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/controllers/coupon.controller.js",
+      "purpose": "優惠券 API 控制器與後台 toggle。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/controllers/export.controller.js",
+      "purpose": "CSV 匯出控制器。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/controllers/stats.controller.js",
+      "purpose": "營運報表控制器。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/controllers/user.controller.js",
+      "purpose": "會員管理控制器。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/routes/index.js",
+      "purpose": "彙整子路由並套用中介層順序（auth、signKey）。",
+      "sources": []
+    },
+    {
+      "path": "templates/backend/src/routes/auth.routes.js",
+      "purpose": "auth 路由（/auth/*）。",
+      "sources": [
+        "js/auth.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/routes/product.routes.js",
+      "purpose": "products 路由（/products 與 /admin/products）。",
+      "sources": [
+        "js/shop.js",
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/routes/pricing.routes.js",
+      "purpose": "pricing 路由（/pricing、/coupons）。",
+      "sources": [
+        "js/pricing.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/routes/order.routes.js",
+      "purpose": "orders 與 checkout 路由。",
+      "sources": [
+        "js/shop.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/routes/coupon.routes.js",
+      "purpose": "coupons 與 admin/coupons 路由。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/routes/export.routes.js",
+      "purpose": "admin 匯出路由。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/routes/stats.routes.js",
+      "purpose": "admin 統計路由。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/backend/src/routes/user.routes.js",
+      "purpose": "admin 會員管理路由。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/frontend/sdk/apiClient.js",
+      "purpose": "前端通用 API client：維護 baseURL、JWT、簽章（timestamp+nonce+method+path+body 的 HMAC）、重試與錯誤處理。",
+      "sources": []
+    },
+    {
+      "path": "templates/frontend/sdk/authClient.js",
+      "purpose": "前端 Auth SDK：login/register/profile/logout 與 token/signKey 管理。",
+      "sources": [
+        "js/auth.js",
+        "js/login.js"
+      ]
+    },
+    {
+      "path": "templates/frontend/sdk/pricingClient.js",
+      "purpose": "前端 Pricing SDK：quote 與 coupon validate。",
+      "sources": [
+        "js/pricing.js"
+      ]
+    },
+    {
+      "path": "templates/frontend/sdk/storage.js",
+      "purpose": "前端 storage 輔助（cart 與 session localStorage 管理）。",
+      "sources": [
+        "js/shop.js",
+        "js/auth.js"
+      ]
+    },
+    {
+      "path": "templates/frontend/pages/shop.js",
+      "purpose": "改寫後的前台頁面邏輯：呼叫 /products、/pricing/quote、/orders、/checkout 取代前端商業邏輯。",
+      "sources": [
+        "js/shop.js"
+      ]
+    },
+    {
+      "path": "templates/frontend/pages/admin.js",
+      "purpose": "改寫後台：呼叫 /admin/stats、/admin/orders、/admin/users、/admin/products、/admin/coupons、/admin/export。",
+      "sources": [
+        "js/admin.js"
+      ]
+    },
+    {
+      "path": "templates/frontend/pages/login.js",
+      "purpose": "改寫登入/註冊：呼叫 authClient，移除前端驗證與假 token。",
+      "sources": [
+        "js/login.js"
+      ]
+    },
+    {
+      "path": "templates/frontend/index.html",
+      "purpose": "改寫範本（至少一頁）：移除 data/*.js、db.js、auth.js、pricing.js、payment.js；改為載入 sdk 與 pages/shop.js。",
+      "sources": [
+        "index.html"
+      ]
+    },
+    {
+      "path": "templates/frontend/admin.html",
+      "purpose": "後台頁改寫範本，對接新 API。",
+      "sources": [
+        "admin.html"
+      ]
+    },
+    {
+      "path": "templates/frontend/login.html",
+      "purpose": "登入頁改寫範本，對接新 API。",
+      "sources": [
+        "login.html"
+      ]
+    },
+    {
+      "path": "templates/docs/index.html",
+      "purpose": "啟用說明網頁（docs/）：環境變數、啟動方式、API 範例、前端改寫注意事項與除錯技巧。",
+      "sources": []
+    }
+  ],
+  "frontendChanges": [
+    {
+      "file": "index.html",
+      "action": "改寫",
+      "details": "刪除 js/data/*.js、js/db.js、js/auth.js（舊）、js/pricing.js、js/payment.js；新增 sdk/apiClient.js、sdk/authClient.js、sdk/pricingClient.js、pages/shop.js；載入 settings（/public/settings）初始化站名與顯示用稅率文字。購物車仍存 localStorage，但金額計算改呼叫 /pricing/quote；結帳改呼叫 /checkout；我的訂單改呼叫 /orders。",
+      "remove": [
+        "js/data/products.js",
+        "js/data/users.js",
+        "js/data/orders.js",
+        "js/data/coupons.js",
+        "js/db.js",
+        "js/auth.js",
+        "js/pricing.js",
+        "js/payment.js",
+        "js/shop.js"
+      ],
+      "add": [
+        "frontend/sdk/apiClient.js",
+        "frontend/sdk/authClient.js",
+        "frontend/sdk/pricingClient.js",
+        "frontend/pages/shop.js"
+      ]
+    },
+    {
+      "file": "login.html",
+      "action": "改寫",
+      "details": "刪除舊 js/auth.js 與 data/db 相關引用；改為載入 sdk/authClient.js 與 pages/login.js；註冊/登入送往 /auth/register 與 /auth/login；成功後依角色導頁。",
+      "remove": [
+        "js/auth.js",
+        "js/db.js",
+        "js/data/*.js",
+        "js/login.js"
+      ],
+      "add": [
+        "frontend/sdk/apiClient.js",
+        "frontend/sdk/authClient.js",
+        "frontend/pages/login.js"
+      ]
+    },
+    {
+      "file": "admin.html",
+      "action": "改寫",
+      "details": "後台使用 jwt 與角色驗證（若無權導回登入）；營運統計改呼叫 /admin/stats；訂單管理改接 /admin/orders 與 /admin/orders/:id/status；商品管理改接 /admin/products CRUD；會員管理改接 /admin/users（VIP/停權/刪除）；優惠券改接 /admin/coupons 與 toggle；匯出 CSV 改為開啟 /admin/export/orders.csv；移除前端 computeStats 與任何 DB 直接操作。",
+      "remove": [
+        "js/admin.js",
+        "js/db.js",
+        "js/data/*.js",
+        "js/auth.js"
+      ],
+      "add": [
+        "frontend/sdk/apiClient.js",
+        "frontend/sdk/authClient.js",
+        "frontend/pages/admin.js"
+      ]
+    },
+    {
+      "file": "js/config.js",
+      "action": "刪除",
+      "details": "所有機敏設定改由後端環境變數管理；前端僅透過 /public/settings 取得顯示所需非敏感設定。"
+    },
+    {
+      "file": "js/db.js",
+      "action": "刪除",
+      "details": "localStorage 假 DB 功能移除，所有資料存取改為呼叫後端 API。"
+    },
+    {
+      "file": "js/auth.js",
+      "action": "刪除",
+      "details": "前端驗證、萬用密碼、偽 token 全移除；改為 JWT + 後端驗證；session signKey 在登入時由後端下發（短效）。"
+    },
+    {
+      "file": "js/pricing.js",
+      "action": "刪除",
+      "details": "價格/優惠/運費/稅金計算搬往後端（/pricing/quote）；前端只渲染結果。"
+    },
+    {
+      "file": "js/payment.js",
+      "action": "刪除",
+      "details": "金流串接改為後端代扣（mock）；前端不再持有任何 secret key。"
+    },
+    {
+      "file": "js/shop.js",
+      "action": "重寫",
+      "details": "以 API 取代 DB 與前端邏輯：GET /products 查詢；POST /pricing/quote 計算金額；POST /checkout 建立訂單；GET /orders 查看；POST /orders/:id/cancel 取消。"
+    },
+    {
+      "file": "js/login.js",
+      "action": "重寫",
+      "details": "改為使用 authClient.login/authClient.register 與錯誤顯示，移除直接操作 DB 與舊 Auth。"
+    },
+    {
+      "file": "js/admin.js",
+      "action": "重寫",
+      "details": "改為呼叫後端 admin 系列 API；刪除所有直接讀寫 DB 與統計計算邏輯。"
+    },
+    {
+      "file": "js/data/*.js",
+      "action": "刪除",
+      "details": "種子資料改搬到 backend/repositories/seed/*.json 由後端啟動載入。"
+    }
+  ],
+  "notes": "- 產物輸出：backend/ 與 frontend/ 位於同一 ZIP；後端可用 `npm run dev` 啟動（預設 http://localhost:3000）；前端以靜態伺服器（如 `npx serve frontend`）或直接開檔案（若需 CORS 請用伺服器）。\n- 前後端簽章（signKey）：採 HMAC-SHA256，字串 = `${timestamp}|${nonce}|${method}|${path}|${bodySha256}`；header：X-Sign-Timestamp、X-Sign-Nonce、X-Signature、X-Sign-KeyId；有效時間窗與 nonce 防重放可於 config 調整；login/register/public/settings 預設豁免；其餘路由需 JWT + 簽章（開關可在 dev 關閉）。\n- 安全：後端統一錯誤處理避免外洩 stack；稽核日誌遮罩敏感欄位（password、card、Authorization、signKey、apiKey）；所有機敏值改以環境變數注入；admin 行為納入審計。\n- 資料層：預設以檔案 JSON 當儲存（templates 提供）；可在 config 切換為記憶體 mock；未包含真正 DB driver 以控制檔案數上限。\n- 角色與權限：customer 可下單/查訂單/取消；staff 可檢視報表與訂單、商品庫存與價格更新、優惠券啟停；admin 另可刪除商品/會員與變更用戶狀態。\n- 金流/簡訊：皆為 server-side mock；卡號末四碼 0000 模擬失敗，對齊原前端；請勿在正式環境上傳真實金鑰。\n- docs/index.html：生成一頁式說明，含環境變數列表、啟動步驟、curl 範例、前端整合與疑難排解。\n- 檔案總數：Skill 本身控制在 90 檔以內；實際專案生成後，前後端仍維持清晰分層（routes/controllers/services/repositories/middlewares/config/utils）。",
+  "splitScope": "fullstack"
+}

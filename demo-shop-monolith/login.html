@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>登入｜海螺小舖</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>🐚 <a href="index.html" id="site-name"></a></h1>
+  </header>
+
+  <main class="auth-layout">
+    <form id="login-form" class="panel">
+      <h2>會員登入</h2>
+      <label>帳號 <input id="login-username" required /></label>
+      <label>密碼 <input id="login-password" type="password" required /></label>
+      <p id="login-error" class="error"></p>
+      <button class="primary" type="submit">登入</button>
+      <p class="muted small">測試帳號：amy / amy2025（VIP）、bob / bob12345、admin / admin123、staff / staff2025</p>
+    </form>
+
+    <form id="register-form" class="panel">
+      <h2>註冊新會員</h2>
+      <label>帳號 <input id="reg-username" required /></label>
+      <label>密碼 <input id="reg-password" type="password" required /></label>
+      <label>姓名 <input id="reg-name" required /></label>
+      <label>Email <input id="reg-email" type="email" /></label>
+      <label>手機 <input id="reg-phone" /></label>
+      <p id="register-error" class="error"></p>
+      <button class="primary" type="submit">註冊</button>
+    </form>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/data/products.js"></script>
+  <script src="js/data/users.js"></script>
+  <script src="js/data/orders.js"></script>
+  <script src="js/data/coupons.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

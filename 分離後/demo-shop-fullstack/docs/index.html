@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>demo-shop-fullstack-split｜啟用說明</title>
+  <style>
+    :root { color-scheme: light dark; --bg: #0b0c10; --fg: #e8e8e8; --muted: #9aa0a6; --pri: #2aa198; --red:#ff5370; --ylw:#ffcc00; --code-bg: rgba(0,0,0,0.5); }
+    html,body{margin:0;padding:0;font-family:ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;line-height:1.6}
+    header{padding:24px 16px;background:#111827;color:#fff;border-bottom:1px solid #222}
+    header h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
+    header small{color:#9ca3af}
+    main{max-width:980px;margin:0 auto;padding:24px 16px}
+    h2{margin-top:28px;border-left:4px solid var(--pri);padding-left:8px}
+    h3{margin-top:22px}
+    .grid{display:grid;gap:16px}
+    .two{grid-template-columns: repeat(auto-fit,minmax(260px,1fr))}
+    .panel{border:1px solid #e5e7eb;border-radius:8px;padding:16px;background:#fff;color:#111}
+    @media (prefers-color-scheme: dark){
+      body{background:#0b0c10;color:#e8e8e8}
+      .panel{background:#0f172a;color:#e5e7eb;border-color:#1f2937}
+    }
+    code,pre{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+    pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow:auto}
+    .muted{color:#9aa0a6}
+    .ok{color:#22c55e}
+    .warn{color:#f59e0b}
+    .err{color:#ef4444}
+    .kbd{display:inline-block;padding:2px 6px;border:1px solid #888;border-radius:4px;font-family:monospace}
+    .tag{display:inline-block;padding:2px 8px;border-radius:999px;background:#111827;color:#e5e7eb;font-size:12px;margin-left:6px}
+    .list{padding-left:20px}
+    a{color:#38bdf8;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{border-bottom:1px solid #333;padding:8px 6px;text-align:left;vertical-align:top}
+    .tip{border-left:4px solid #38bdf8;padding:8px 12px;background:rgba(56,189,248,.1);border-radius:6px}
+  </style>
+</head>
+<body>
+<header>
+  <h1>🐚 demo-shop-fullstack-split <small class="tag">docs</small></h1>
+  <small>Express API + 前端改接 API 模板｜HMAC-SHA256 簽章、防重放、稽核與統一錯誤處理</small>
+</header>
+<main>
+  <section>
+    <h2>快速開始（Quick Start）</h2>
+    <div class="grid two">
+      <div class="panel">
+        <h3>1) 啟動後端（backend/）</h3>
+        <ol class="list">
+          <li>cd backend</li>
+          <li>複製環境檔：<span class="kbd">cp .env.example .env</span></li>
+          <li>編輯 .env（至少設定 JWT_SECRET；其餘可保留預設）</li>
+          <li>安裝與啟動：
+            <pre><code>npm install
+npm run dev
+# 預設 http://localhost:3000
+# 健康檢查：curl http://localhost:3000/healthz
+</code></pre>
+          </li>
+        </ol>
+        <div class="tip">若看到「SignKey: enabled=true」與「Audit: enabled=true」即代表安全中介層已啟用。</div>
+      </div>
+      <div class="panel">
+        <h3>2) 啟動前端（frontend/）</h3>
+        <ol class="list">
+          <li>於專案根目錄啟動靜態伺服器：
+            <pre><code>npx serve frontend
+# 或以任意靜態伺服器，例如 VS Code Live Server、http-server 等
+</code></pre>
+          </li>
+          <li>開啟 login.html 或 index.html 進行測試</li>
+        </ol>
+        <p class="muted">注意：直接以檔案開啟（file://）可能遭遇 CORS 問題；請使用靜態伺服器並將其來源加入 backend 的 CORS_WHITELIST。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>環境變數（.env）重點</h2>
+    <div class="panel">
+      <table class="table">
+        <thead><tr><th>鍵</th><th>預設</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>NODE_ENV</td><td>development</td><td>環境（development / staging / production）</td></tr>
+          <tr><td>PORT</td><td>3000</td><td>API 服務埠</td></tr>
+          <tr><td>CORS_WHITELIST</td><td>本機常用來源</td><td>允許跨域的前端來源（逗號分隔）</td></tr>
+          <tr><td>AUDIT_ENABLED</td><td>true</td><td>稽核日誌：記錄請求/回應並遮罩敏感欄位</td></tr>
+          <tr><td>ERROR_EXPOSE_STACK</td><td>true(Dev)/false(Prod)</td><td>是否在錯誤回應中顯示 stack</td></tr>
+          <tr><td>JWT_SECRET</td><td>(空)</td><td>JWT 簽發密鑰（必填）</td></tr>
+          <tr><td>JWT_EXPIRES_IN</td><td>1d</td><td>JWT 過期時間</td></tr>
+          <tr><td>ADMIN_MASTER_PASSWORD</td><td>(空)</td><td>管理者萬用密碼（僅開發測試用）</td></tr>
+          <tr><td>SIGNKEY_ENABLED</td><td>true</td><td>是否啟用前後端簽章驗證</td></tr>
+          <tr><td>SIGNKEY_WINDOW_MS</td><td>300000</td><td>簽章有效時間窗（毫秒）</td></tr>
+          <tr><td>SIGNKEY_CLOCK_SKEW_MS</td><td>10000</td><td>允許時鐘偏移（毫秒）</td></tr>
+          <tr><td>NONCE_TTL_MS</td><td>600000</td><td>Nonce 存活時間（毫秒）</td></tr>
+          <tr><td>SIGNKEY_SESSION_TTL_MS</td><td>3600000</td><td>每次登入核發的 session signKey 存活（毫秒）</td></tr>
+          <tr><td>SIGNKEY_WHITELIST_PATHS</td><td>/api/v1/public/settings,/api/v1/auth/login,/api/v1/auth/register</td><td>免簽章路由</td></tr>
+          <tr><td>MOCK_PAYMENT_ENABLED</td><td>true</td><td>啟用金流代扣 mock</td></tr>
+          <tr><td>MOCK_SMS_ENABLED</td><td>true</td><td>啟用簡訊 mock</td></tr>
+          <tr><td>RATE_LIMIT_ENABLED</td><td>false</td><td>速率限制（可選）</td></tr>
+          <tr><td>SITE_NAME</td><td>海螺小舖</td><td>前端顯示用站名（公開設定）</td></tr>
+          <tr><td>CURRENCY / TAX_RATE / SHIPPING_FEE / FREE_SHIPPING_THRESHOLD / VIP_DISCOUNT</td><td>見 .env.example</td><td>前端顯示與後端計價所需設定</td></tr>
+          <tr><td>DATA_STORE</td><td>file</td><td>資料儲存方式（file｜memory）</td></tr>
+          <tr><td>DATA_DIR</td><td>./data</td><td>當 DATA_STORE=file 時的資料目錄</td></tr>
+          <tr><td>SEED_ON_START</td><td>true(Dev)</td><td>啟動自動載入種子資料</td></tr>
+          <tr><td>ALLOW_DEV_RESET</td><td>true(Dev)</td><td>允許開發用重置 API</td></tr>
+          <tr><td>PAYMENT_SECRET_KEY / SMS_API_KEY</td><td>(空)</td><td>僅後端使用的金流/簡訊金鑰（請勿放在前端）</td></tr>
+          <tr><td>CSV_WITH_BOM</td><td>true</td><td>CSV 匯出是否含 BOM</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>API 測試範例（curl）</h2>
+    <div class="panel">
+      <h3>1) 取得公開設定（免簽章）</h3>
+      <pre><code>curl -s http://localhost:3000/api/v1/public/settings | jq .
+</code></pre>
+
+      <h3>2) 登入以取得 JWT 與 session signKey（免簽章）</h3>
+      <pre><code>curl -s -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"amy","password":"amy2025"}' | jq .
+# 回應示意：
+# {
+#   "success": true,
+#   "data": {
+#     "user": { "id": 2, "username": "amy", "role": "customer", "vip": true, ... },
+#     "accessToken": "eyJhbGciOiJI...", 
+#     "signKey": { "keyId": "a1b2c3...", "secret": "b36f...e2", "expiresAt": 1719999999999 }
+#   }
+# }
+</code></pre>
+
+      <h3>3) 以 JWT + 簽章呼叫受保護路由（GET /api/v1/products）</h3>
+      <p class="muted">簽名字串格式：<code>timestamp|nonce|method|path|bodySha256</code>，演算法：HMAC-SHA256。Header 預設：X-Sign-Timestamp、X-Sign-Nonce、X-Signature、X-Sign-KeyId。</p>
+      <p>以下提供一段 Node.js 單檔腳本示範（以環境變數注入 tokens）：</p>
+      <pre><code>// save as sign-get-products.mjs
+import crypto from 'node:crypto';
+import process from 'node:process';
+const base = process.env.BASE || 'http://localhost:3000';
+const token = process.env.JWT;     // 從登入回應擷取 accessToken
+const keyId = process.env.KEY_ID;  // 從登入回應擷取 signKey.keyId
+const secret = process.env.SECRET; // 從登入回應擷取 signKey.secret
+
+const ts = Date.now().toString();
+const nonce = crypto.randomBytes(16).toString('hex');
+const method = 'GET';
+const path = '/api/v1/products?keyword=phone';
+const body = ''; // GET 無 body
+const bodySha256 = crypto.createHash('sha256').update(body).digest('hex');
+const canonical = `${ts}|${nonce}|${method}|${path}|${bodySha256}`;
+const sig = crypto.createHmac('sha256', secret).update(canonical).digest('hex');
+
+const res = await fetch(base + path, {
+  method,
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'X-Sign-Timestamp': ts,
+    'X-Sign-Nonce': nonce,
+    'X-Signature': sig,
+    'X-Sign-KeyId': keyId,
+  }
+});
+console.log(await res.json());
+</code></pre>
+      <p>執行：</p>
+      <pre><code>BASE=http://localhost:3000 JWT=&lt;token&gt; KEY_ID=&lt;keyId&gt; SECRET=&lt;secret&gt; node sign-get-products.mjs
+</code></pre>
+    </div>
+  </section>
+
+  <section>
+    <h2>前端改寫重點</h2>
+    <div class="grid two">
+      <div class="panel">
+        <h3>移除內容</h3>
+        <ul class="list">
+          <li>js/data/*.js（種子資料改由 backend/repositories/seed/*.json）</li>
+          <li>js/db.js（本地假 DB 拿掉，改呼叫後端 API）</li>
+          <li>js/auth.js、js/pricing.js、js/payment.js（商業邏輯後端化）</li>
+          <li>任何含有金鑰或萬用密碼的程式碼</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>新增與載入順序</h3>
+        <ol class="list">
+          <li>frontend/sdk/apiClient.js（維護 baseURL、JWT、簽章）</li>
+          <li>必要時載入 frontend/sdk/storage.js（購物車與 session 狀態）</li>
+          <li>frontend/sdk/authClient.js（登入、註冊、profile、logout）</li>
+          <li>視頁面載入 pages/*.js（如 pages/shop.js、pages/login.js、pages/admin.js）</li>
+        </ol>
+        <p class="muted">預設 ApiClient baseURL 指向 <code>http://localhost:3000</code>；可在瀏覽器主控台以 <code>ApiClient.setBaseURL('http://localhost:3000')</code> 覆寫。</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>簽章與白名單</h3>
+      <ul class="list">
+        <li>白名單（免簽章）：GET /api/v1/public/settings、POST /api/v1/auth/login、POST /api/v1/auth/register</li>
+        <li>其餘路由需同時具備 JWT 與簽章（session signKey）。</li>
+        <li>簽名內容：<code>timestamp|nonce|method|path|bodySha256</code>，HMAC-SHA256；Header 預設：
+          <code>X-Sign-Timestamp</code>、<code>X-Sign-Nonce</code>、<code>X-Signature</code>、<code>X-Sign-KeyId</code>
+        </li>
+        <li>有效時間窗（SIGNKEY_WINDOW_MS，預設 5 分鐘）＋ Nonce 防重放（NONCE_TTL_MS）。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>常見問題（FAQ）</h2>
+    <div class="panel">
+      <h3 class="warn">呼叫 API 回 401/403？</h3>
+      <ul class="list">
+        <li>是否已登入並於 Authorization 帶上 <code>Bearer &lt;jwt&gt;</code>？</li>
+        <li>是否對非白名單路由計算並附上簽章與 keyId？</li>
+        <li>請確認 timestamp 未超出 SIGNKEY_WINDOW_MS，且 nonce 未重覆使用；檢查本機時間是否嚴重誤差。</li>
+        <li>開發測試可暫時將 <code>SIGNKEY_ENABLED=false</code> 驗證問題來源（正式環境請務必開啟）。</li>
+      </ul>
+
+      <h3 class="warn">CORS 錯誤（Access-Control-Allow-Origin）？</h3>
+      <ul class="list">
+        <li>請將前端靜態站台來源加入 backend <code>CORS_WHITELIST</code>（以逗號分隔）。</li>
+        <li>避免以 file:// 直接開啟，請使用靜態伺服器。</li>
+      </ul>
+
+      <h3 class="warn">如何重置種子資料？</h3>
+      <ul class="list">
+        <li>限 development 環境，且 <code>ALLOW_DEV_RESET=true</code>。</li>
+        <li>以 admin/staff 權限呼叫 <code>POST /api/v1/admin/reset</code>。</li>
+      </ul>
+
+      <h3 class="warn">錯誤回應不見 stack？</h3>
+      <ul class="list">
+        <li>統一錯誤處理預設不外洩 stack；開發可設定 <code>ERROR_EXPOSE_STACK=true</code>。</li>
+        <li>回應含 <code>X-Trace-Id</code>（或 body.traceId），可對照後端日誌查詢。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>實用指令與驗證清單</h2>
+    <div class="panel">
+      <ul class="list">
+        <li>健康檢查：<code>curl http://localhost:3000/healthz</code></li>
+        <li>公開設定：<code>curl http://localhost:3000/api/v1/public/settings</code></li>
+        <li>登入（取得 JWT 與 signKey）：<pre><code>curl -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+</code></pre></li>
+        <li>管理後台（範例）：<pre><code># 以 JWT + 簽章呼叫 /api/v1/admin/stats、/api/v1/admin/orders 等
+</code></pre></li>
+        <li>匯出 CSV：開啟 <code>/api/v1/admin/export/orders.csv</code>（需權限與簽章）</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>安全與稽核</h2>
+    <div class="panel">
+      <ul class="list">
+        <li>稽核日誌自動遮罩敏感欄位（password、card、Authorization、token、apiKey、signKey 等）。</li>
+        <li>統一錯誤處理避免洩漏內部堆疊；可用 traceId 交叉比對後端日誌。</li>
+        <li>所有機敏設定以環境變數注入，前端不再持有任何 secret。</li>
+        <li>RBAC 角色建議：customer（下單/查訂單）、staff（後台查詢與更新）、admin（進階管理）。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>參考</h2>
+    <div class="panel">
+      <ul class="list">
+        <li>後端架構與分層：routes / controllers / services / repositories / middlewares / config / utils</li>
+        <li>白名單：/api/v1/public/settings、/api/v1/auth/login、/api/v1/auth/register</li>
+        <li>簽章 Header：X-Sign-Timestamp、X-Sign-Nonce、X-Signature、X-Sign-KeyId</li>
+        <li>簽名字串：<code>timestamp|nonce|method|path|bodySha256</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="muted" style="margin-top:32px;padding:16px 0;border-top:1px solid #333">
+    <div>© demo-shop-fullstack-split | 本頁為 templates/docs/index.html 產物，解壓後位於專案 docs/ 目錄。</div>
+  </footer>
+</main>
+</body>
+</html>

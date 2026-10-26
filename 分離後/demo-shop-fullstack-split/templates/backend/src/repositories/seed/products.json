@@ -1,0 +1,14 @@
+[
+  { "id": 1, "sku": "SH-001", "name": "海螺造型馬克杯", "category": "生活雜貨", "price": 390, "cost": 120, "stock": 42, "rating": 4.6, "image": "☕", "tags": ["熱銷", "禮物"], "description": "手工上釉陶瓷馬克杯，容量 350ml。" },
+  { "id": 2, "sku": "SH-002", "name": "海洋風帆布托特包", "category": "包款", "price": 890, "cost": 310, "stock": 18, "rating": 4.8, "image": "👜", "tags": ["新品"], "description": "厚磅帆布，內附拉鍊夾層。" },
+  { "id": 3, "sku": "SH-003", "name": "貝殼香氛蠟燭", "category": "香氛", "price": 520, "cost": 140, "stock": 0, "rating": 4.3, "image": "🕯️", "tags": ["缺貨"], "description": "大豆蠟，燃燒時間約 40 小時。" },
+  { "id": 4, "sku": "SH-004", "name": "藍色漸層保溫瓶", "category": "生活雜貨", "price": 680, "cost": 220, "stock": 25, "rating": 4.5, "image": "🧴", "tags": [], "description": "雙層真空，保冷 24 小時。" },
+  { "id": 5, "sku": "SH-005", "name": "珊瑚礁拼圖 1000 片", "category": "玩具", "price": 750, "cost": 260, "stock": 9, "rating": 4.9, "image": "🧩", "tags": ["限量"], "description": "高畫質印刷，附海報。" },
+  { "id": 6, "sku": "SH-006", "name": "海浪紋棉麻抱枕", "category": "居家", "price": 560, "cost": 180, "stock": 31, "rating": 4.2, "image": "🛋️", "tags": [], "description": "45x45cm，可拆洗外套。" },
+  { "id": 7, "sku": "SH-007", "name": "燈塔木質小夜燈", "category": "居家", "price": 1290, "cost": 480, "stock": 7, "rating": 4.7, "image": "💡", "tags": ["熱銷"], "description": "觸控三段調光，USB 充電。" },
+  { "id": 8, "sku": "SH-008", "name": "海龜環保吸管組", "category": "生活雜貨", "price": 199, "cost": 45, "stock": 120, "rating": 4.4, "image": "🥤", "tags": ["環保"], "description": "不鏽鋼吸管 4 入附清潔刷。" },
+  { "id": 9, "sku": "SH-009", "name": "鯨魚手繪明信片組", "category": "文具", "price": 180, "cost": 40, "stock": 65, "rating": 4.1, "image": "🐋", "tags": [], "description": "一組 8 張，插畫家聯名。" },
+  { "id": 10, "sku": "SH-010", "name": "深海藍鋼筆", "category": "文具", "price": 1680, "cost": 700, "stock": 4, "rating": 4.9, "image": "🖋️", "tags": ["限量", "禮物"], "description": "F 尖，附吸墨器與禮盒。" },
+  { "id": 11, "sku": "SH-011", "name": "沙灘野餐墊", "category": "戶外", "price": 990, "cost": 350, "stock": 14, "rating": 4.3, "image": "🏖️", "tags": ["新品"], "description": "防水底層，200x150cm。" },
+  { "id": 12, "sku": "SH-012", "name": "海鹽手工皂三入", "category": "香氛", "price": 450, "cost": 110, "stock": 38, "rating": 4.6, "image": "🧼", "tags": [], "description": "冷製皂，無添加香精。" }
+]

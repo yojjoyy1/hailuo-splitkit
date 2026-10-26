@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>啟用說明｜Hailuo SplitKit</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .doc { max-width: 900px; margin: 24px auto 80px; padding: 0 16px; }
+    .doc h2 { border-left: 4px solid var(--primary); padding-left: 10px; margin-top: 36px; }
+    .doc pre { background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 8px; overflow: auto; font-size: 13px; }
+    .doc code { background: #eef2ff; padding: 1px 5px; border-radius: 4px; }
+    .doc pre code { background: none; padding: 0; }
+    .doc table { background: #fff; }
+    .toc { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px 24px; }
+    .tip { background: #fffbeb; border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🐚</span>
+      <div>
+        <h1>啟用說明</h1>
+        <p>Hailuo SplitKit：安裝、設定與產出物使用方式</p>
+      </div>
+    </div>
+    <a class="btn ghost" href="/">← 回到工具</a>
+  </header>
+
+  <article class="doc">
+    <nav class="toc">
+      <ol>
+        <li><a href="#install">安裝與啟動</a></li>
+        <li><a href="#config">設定檔 config</a></li>
+        <li><a href="#flow">使用流程</a></li>
+        <li><a href="#output-api">產出物：後端 API 專案</a></li>
+        <li><a href="#output-skill">產出物：SKILL 架構</a></li>
+        <li><a href="#faq">常見問題</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="install">1. 安裝與啟動</h2>
+    <p>需要 Node.js 18.17 以上版本：<a href="https://nodejs.org" target="_blank" rel="noreferrer">https://nodejs.org</a></p>
+    <p>最簡單的方式是雙擊啟動檔（會自動 <code>npm install</code>、開伺服器、打開瀏覽器）：</p>
+    <ul>
+      <li>Windows：雙擊 <code>啟動.bat</code> 或 <code>start.bat</code></li>
+      <li>macOS：雙擊 <code>啟動.command</code> 或 <code>start.command</code>。若提示無法打開，在終端執行 <code>chmod +x 啟動.command start.command</code> 後再雙擊。</li>
+    </ul>
+    <p>關閉該視窗即停止服務。也可以用終端：</p>
+    <pre><code>cd hailuo-splitkit
+npm install
+npm start            # 開發環境（預設 http://127.0.0.1:3000）
+npm run launch       # 同上，並自動打開瀏覽器
+npm run dev          # 修改程式自動重啟
+npm run start:prod   # 正式環境，會讀取 config/production.json（等同 node server.js --env=production）</code></pre>
+    <p>以上指令在 Windows / macOS / Linux 都相同。若要用環境變數臨時覆寫埠號：</p>
+    <pre><code># macOS / Linux
+PORT=8080 npm start
+
+# Windows PowerShell
+$env:PORT=8080; npm start
+
+# Windows CMD
+set PORT=8080&& npm start</code></pre>
+
+    <h2 id="config">2. 設定檔 config</h2>
+    <p>載入順序（後者覆蓋前者）：</p>
+    <ol>
+      <li><code>config/default.json</code>：預設值（進版控）</li>
+      <li><code>config/{NODE_ENV}.json</code>：依環境覆寫，例如 <code>development.json</code>、<code>staging.json</code>、<code>production.json</code></li>
+      <li><code>config/local.json</code>：本機個人設定（已列入 .gitignore）</li>
+      <li>環境變數 <code>PORT</code>、<code>HOST</code>、<code>AI_TIMEOUT_MS</code></li>
+    </ol>
+    <p>AI API Key 另存在專案根目錄的 <code>config.js</code>（範本 <code>config.example.js</code>），不寫進瀏覽器 localStorage。可直接編輯該檔，或在網頁「API Key 管理」儲存。</p>
+    <table>
+      <thead><tr><th>參數</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>server.host / server.port</code></td><td>伺服器位址與埠號。預設只聽 127.0.0.1，避免他人透過你的伺服器使用 API Key。</td></tr>
+        <tr><td><code>server.bodyLimit</code></td><td>單次請求大小上限（專案原始碼 + 截圖）。</td></tr>
+        <tr><td><code>ai.timeoutMs</code></td><td>單次 AI 呼叫逾時（毫秒）。</td></tr>
+        <tr><td><code>ai.defaultMaxOutputTokens</code></td><td>單次 AI 最大輸出 tokens；每組 Key 也可在「進階設定」個別覆寫。</td></tr>
+        <tr><td><code>ai.providers.*</code></td><td>各供應商的官方網址、預設模型與模型建議清單。</td></tr>
+        <tr><td><code>generation.filesPerBatch</code></td><td>每次請 AI 產生幾個檔案。調小可降低輸出被截斷的機率。</td></tr>
+        <tr><td><code>generation.maxPlanFiles</code></td><td>產出專案的檔案數上限。</td></tr>
+        <tr><td><code>generation.maxRetriesPerFile</code></td><td>單一檔案被截斷或漏掉時的重試次數。</td></tr>
+        <tr><td><code>generation.maxSourceCharsPerBatch</code></td><td>每批產生時附帶的原始碼字元上限。</td></tr>
+        <tr><td><code>upload.maxContextChars</code></td><td>規劃階段送給 AI 的原始碼總字元上限，超過的檔案只列入檔案樹。</td></tr>
+        <tr><td><code>upload.maxFileBytes</code></td><td>單一檔案大小上限，超過會略過。</td></tr>
+        <tr><td><code>upload.ignoreDirs / ignoreFiles / textExtensions</code></td><td>讀取專案時的過濾規則。</td></tr>
+        <tr><td><code>languages</code></td><td>可選語言與對應框架、預設框架。可自行增加。</td></tr>
+        <tr><td><code>securityItems</code></td><td>資安防護勾選項目。</td></tr>
+      </tbody>
+    </table>
+    <p>範例：在 <code>config/local.json</code> 改用 8080 埠、每批只產 2 個檔案：</p>
+    <pre><code>{
+  "server": { "port": 8080 },
+  "generation": { "filesPerBatch": 2 }
+}</code></pre>
+
+    <h2 id="flow">3. 使用流程</h2>
+    <ol>
+      <li><b>選擇主專案（必填）</b>：點「瀏覽選擇資料夾」或直接拖曳資料夾。<code>.env</code> 等機敏檔與依賴資料夾會自動排除。</li>
+      <li><b>API Key（列表為空時必填）</b>：新增 OpenAI 或 Anthropic Key，可修改、刪除、測試，並選擇「使用中」的 Key。</li>
+      <li><b>分離範圍（必填）</b>：選「只分離後端」或「前後端一起分離」。兩個產出按鈕都會依此調整。</li>
+      <li><b>想切割的部分（選填）</b>：上傳/貼上截圖或文字描述；不填則由 AI 自行判斷。</li>
+      <li><b>簽章 signKey（選填）</b>：可交給 AI 預設，或自訂演算法、Header、有效時間與組成規則。</li>
+      <li><b>語言與框架（選填）</b>：預設 Node.js + Express.js；選「其他」語言可手填，未指定框架時使用原生無框架。</li>
+      <li><b>資安防護（選填）</b>、<b>專案架構說明（選填）</b>、<b>備註（選填）</b>。</li>
+      <li>按 <b>「切割 API 專案」</b> 或 <b>「建立 SKILL 架構」</b>（選前後端一起時按鈕名稱會跟著變）。AI 會先規劃，再分批產生檔案，完成後下載 ZIP。</li>
+    </ol>
+    <p class="tip">表單選項會自動記在瀏覽器裡，下次開啟不必重填。失敗的檔案可以按「重試失敗的檔案」重新產生。</p>
+
+    <h2 id="output-api">4. 產出物：API 專案</h2>
+    <p>內容會依「分離範圍」與語言框架調整。</p>
+    <p><b>只分離後端</b>時，ZIP 一定包含：</p>
+    <ul>
+      <li><code>config/</code>（或該框架慣用的設定機制）+ <code>.env.example</code>：所有參數集中管理</li>
+      <li><code>docs/index.html</code>：該專案的啟用說明網頁，直接用瀏覽器打開</li>
+      <li><code>README.md</code>、<code>FRONTEND_MIGRATION.md</code>：前端改接 API 的對照表</li>
+      <li><code>frontend-sdk/</code>：給原前端使用的 API 呼叫封裝</li>
+      <li><code>.splitter/plan.json</code>：本次 AI 拆分規劃，方便追溯</li>
+    </ul>
+    <p><b>前後端一起分離</b>時，ZIP 會改成整包：</p>
+    <ul>
+      <li><code>README.md</code>、<code>docs/index.html</code>：如何同時啟動前端與後端</li>
+      <li><code>backend/</code>：獨立後端 API（含 <code>.env.example</code> 與參數化設定）</li>
+      <li><code>frontend/</code>：已改寫、改呼叫 API 的前端（含 SDK），不再附 <code>FRONTEND_MIGRATION.md</code></li>
+    </ul>
+    <p>切換測試區/正式區（以 Node.js 為例，實際鍵名以產出專案的 docs 為準）：</p>
+    <pre><code># macOS / Linux
+cp .env.example .env
+APP_ENV=staging npm start      # 測試區，讀取 config/staging
+APP_ENV=production npm start   # 正式區，讀取 config/production
+
+# Windows PowerShell
+Copy-Item .env.example .env
+$env:APP_ENV="staging"; npm start</code></pre>
+    <p>最穩定的跨平台做法是直接在 <code>.env</code> 裡寫 <code>APP_ENV=staging</code>，不必依賴各系統的指令語法。</p>
+    <p>每個 API 模組都有開關與「mock / 真實資料」切換，可在 config 中獨立控制。</p>
+
+    <h2 id="output-skill">5. 產出物：SKILL 架構</h2>
+    <p>「建立 SKILL 架構」會產出一套 Agent Skill（<code>SKILL.md</code> + <code>references/</code> + <code>templates/</code>）。Skill 的工作流程會依「只分離後端」或「前後端一起」調整：前者只指導 Agent 拆後端；後者會要求 Agent 同時產出 <code>backend/</code> 與已改寫的 <code>frontend/</code>。</p>
+    <pre><code># 放到專案內（僅此專案可用）
+unzip xxx-backend-split.zip -d 你的專案/.cursor/skills/
+
+# 或放到個人目錄（所有專案可用）
+unzip xxx-backend-split.zip -d ~/.cursor/skills/
+
+# Windows PowerShell
+Expand-Archive xxx-backend-split.zip -DestinationPath "$env:USERPROFILE\.cursor\skills"</code></pre>
+    <p>Windows 也可以直接在檔案總管按右鍵「解壓縮全部」，再把資料夾放到 <code>%USERPROFILE%\.cursor\skills\</code>。</p>
+    <p>接著在 Agent 對話中說「依照 xxx-backend-split skill 拆出後端 API」即可。</p>
+
+    <h2 id="faq">6. 常見問題</h2>
+    <dl>
+      <dt><b>Q：API Key 存在哪裡？安全嗎？</b></dt>
+      <dd>存在專案根目錄的 <code>config.js</code>，不寫進瀏覽器 localStorage。網頁新增／修改 Key 也會寫回這個檔。請勿把填好金鑰的 <code>config.js</code> 傳給別人或提交版控，也請勿把伺服器開放到公開網路。</dd>
+      <dt><b>Q：檔案被截斷或產生失敗？</b></dt>
+      <dd>系統會自動改為單檔重試；仍失敗可調大 Key 的「最大輸出 Tokens」、調小 <code>generation.filesPerBatch</code>，或換用輸出上限較高的模型。</dd>
+      <dt><b>Q：專案太大？</b></dt>
+      <dd>規劃階段只送 <code>upload.maxContextChars</code> 以內的檔案（優先送含 API / 資料庫邏輯的檔案），其餘列在檔案樹。可在截圖/文字中指定重點範圍，或調高上限。</dd>
+      <dt><b>Q：可以用公司內部的 OpenAI 相容服務嗎？</b></dt>
+      <dd>可以，在 Key 的「進階設定」填入自訂 Base URL（例如 <code>https://your-proxy/v1</code>）。</dd>
+    </dl>
+  </article>
+</body>
+</html>

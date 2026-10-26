@@ -1,0 +1,8 @@
+window.SEED_ORDERS = [
+  { id: 'ORD-20251001-001', userId: 2, items: [{ productId: 1, qty: 2, price: 390 }, { productId: 8, qty: 1, price: 199 }], subtotal: 979, discount: 98, shipping: 80, tax: 48, total: 1009, coupon: null, status: 'completed', paymentRef: 'PAY-7781', createdAt: '2025-10-01 10:22' },
+  { id: 'ORD-20251003-002', userId: 3, items: [{ productId: 7, qty: 1, price: 1290 }], subtotal: 1290, discount: 0, shipping: 80, tax: 65, total: 1435, coupon: null, status: 'shipped', paymentRef: 'PAY-7790', createdAt: '2025-10-03 14:05' },
+  { id: 'ORD-20251005-003', userId: 4, items: [{ productId: 10, qty: 1, price: 1680 }, { productId: 9, qty: 2, price: 180 }], subtotal: 2040, discount: 404, shipping: 0, tax: 82, total: 1718, coupon: 'OCEAN200', status: 'paid', paymentRef: 'PAY-7802', createdAt: '2025-10-05 09:48' },
+  { id: 'ORD-20251008-004', userId: 2, items: [{ productId: 5, qty: 1, price: 750 }], subtotal: 750, discount: 75, shipping: 80, tax: 34, total: 789, coupon: null, status: 'cancelled', paymentRef: 'PAY-7815', createdAt: '2025-10-08 20:31' },
+  { id: 'ORD-20251012-005', userId: 3, items: [{ productId: 2, qty: 1, price: 890 }, { productId: 12, qty: 2, price: 450 }], subtotal: 1790, discount: 179, shipping: 0, tax: 81, total: 1692, coupon: 'WELCOME10', status: 'pending', paymentRef: null, createdAt: '2025-10-12 16:12' },
+  { id: 'ORD-20251015-006', userId: 4, items: [{ productId: 11, qty: 1, price: 990 }, { productId: 6, qty: 1, price: 560 }], subtotal: 1550, discount: 155, shipping: 0, tax: 70, total: 1465, coupon: null, status: 'completed', paymentRef: 'PAY-7840', createdAt: '2025-10-15 11:00' },
+];

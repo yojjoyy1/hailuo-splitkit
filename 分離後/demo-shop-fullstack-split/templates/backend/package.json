@@ -1,0 +1,30 @@
+{
+  "name": "demo-shop-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo Shop API (Node.js + Express) for demo-shop-fullstack-split",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon --watch src --ext js,json --signal SIGINT src/server.js",
+    "postinstall": "echo \"[demo-shop-backend] Dependencies installed.\""
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

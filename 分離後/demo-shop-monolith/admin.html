@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>後台｜海螺小舖</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>🐚 海螺小舖 後台</h1>
+    <div class="user-area">
+      <span id="admin-name"></span>
+      <a href="index.html">前台</a>
+      <button id="logout">登出</button>
+    </div>
+  </header>
+
+  <main class="admin">
+    <p class="muted small">資料庫：<code id="db-info"></code></p>
+
+    <section class="panel">
+      <h2>📊 營運總覽</h2>
+      <div id="stats" class="stats"></div>
+      <div class="row">
+        <div><h3>熱銷商品</h3><ol id="top-products"></ol></div>
+        <div><h3>低庫存警示</h3><ul id="low-stock"></ul></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>📦 訂單管理</h2>
+        <div>
+          <select id="order-filter">
+            <option value="all">全部</option>
+            <option value="pending">待付款</option>
+            <option value="paid">已付款</option>
+            <option value="shipped">已出貨</option>
+            <option value="completed">已完成</option>
+            <option value="cancelled">已取消</option>
+          </select>
+          <button id="export-csv">匯出 CSV</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>訂單</th><th>會員</th><th>金額</th><th>優惠碼</th><th>時間</th><th>狀態</th></tr></thead>
+        <tbody id="orders-table"></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>🛍️ 商品管理</h2>
+      <table>
+        <thead><tr><th>SKU</th><th>名稱</th><th>分類</th><th>售價</th><th>成本</th><th>庫存</th><th>毛利率</th><th></th></tr></thead>
+        <tbody id="products-table"></tbody>
+      </table>
+      <form id="product-form" class="inline-form">
+        <input name="image" placeholder="Emoji" style="width:70px" />
+        <input name="name" placeholder="商品名稱" required />
+        <input name="category" placeholder="分類" required />
+        <input name="price" type="number" placeholder="售價" required />
+        <input name="cost" type="number" placeholder="成本" required />
+        <input name="stock" type="number" placeholder="庫存" required />
+        <input name="description" placeholder="描述" />
+        <button class="primary" type="submit">新增商品</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>👥 會員管理</h2>
+      <table>
+        <thead><tr><th>ID</th><th>帳號</th><th>密碼</th><th>姓名</th><th>Email</th><th>角色</th><th>VIP</th><th>狀態</th><th>操作</th></tr></thead>
+        <tbody id="users-table"></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>🎟️ 優惠券</h2>
+      <table>
+        <thead><tr><th>代碼</th><th>折扣</th><th>低消</th><th>使用量</th><th>到期</th><th>對象</th><th></th></tr></thead>
+        <tbody id="coupons-table"></tbody>
+      </table>
+    </section>
+
+    <button id="reset-db" class="danger">重置假資料</button>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/data/products.js"></script>
+  <script src="js/data/users.js"></script>
+  <script src="js/data/orders.js"></script>
+  <script src="js/data/coupons.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

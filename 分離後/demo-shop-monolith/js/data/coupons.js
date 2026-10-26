@@ -1,0 +1,6 @@
+window.SEED_COUPONS = [
+  { code: 'WELCOME10', type: 'percent', value: 10, minSpend: 500, expiresAt: '2026-12-31', usageLimit: 1000, used: 213, active: true },
+  { code: 'OCEAN200', type: 'amount', value: 200, minSpend: 1500, expiresAt: '2026-06-30', usageLimit: 300, used: 87, active: true },
+  { code: 'VIPONLY', type: 'percent', value: 20, minSpend: 0, expiresAt: '2026-12-31', usageLimit: 50, used: 12, active: true, vipOnly: true },
+  { code: 'EXPIRED50', type: 'amount', value: 50, minSpend: 0, expiresAt: '2024-12-31', usageLimit: 100, used: 100, active: false },
+];

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>海螺小舖</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>🐚 <span id="site-name">海螺小舖</span></h1>
+    <div id="user-area" class="user-area"></div>
+  </header>
+
+  <main class="layout">
+    <section>
+      <div class="toolbar">
+        <input id="search" placeholder="搜尋商品、標籤…" />
+        <select id="sort">
+          <option value="default">預設排序</option>
+          <option value="priceAsc">價格低 → 高</option>
+          <option value="priceDesc">價格高 → 低</option>
+          <option value="rating">評分最高</option>
+        </select>
+      </div>
+      <div id="categories" class="chips"></div>
+      <div id="products" class="grid"></div>
+    </section>
+
+    <aside class="cart">
+      <h2>🛒 購物車（<span id="cart-count">0</span>）</h2>
+      <div id="cart-body"></div>
+      <p class="muted small" id="promo-tips">滿 $1,500 免運｜VIP 享 9 折｜試試優惠碼 WELCOME10、OCEAN200</p>
+      <div class="row">
+        <button id="show-orders" class="secondary">我的訂單</button>
+        <button id="open-checkout" class="primary">結帳</button>
+      </div>
+    </aside>
+  </main>
+
+  <div id="checkout-modal" class="modal hidden">
+    <form id="checkout-form" class="modal-box">
+      <h2>結帳</h2>
+      <label>收件人 <input id="co-name" required /></label>
+      <label>電話 <input id="co-phone" required /></label>
+      <label>地址 <input id="co-address" required placeholder="台北市信義區…" /></label>
+      <label>信用卡號 <input id="co-card" required placeholder="4242 4242 4242 4242（結尾 0000 會失敗）" /></label>
+      <div class="row">
+        <label>有效期限 <input id="co-expiry" required placeholder="12/28" /></label>
+        <label>CVC <input id="co-cvc" required placeholder="123" /></label>
+      </div>
+      <div class="row-end">
+        <button type="button" data-close>取消</button>
+        <button type="submit" class="primary" id="co-submit">確認付款</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="orders-modal" class="modal hidden">
+    <div class="modal-box">
+      <h2>我的訂單</h2>
+      <div id="orders-body"></div>
+      <div class="row-end"><button type="button" data-close>關閉</button></div>
+    </div>
+  </div>
+
+  <!-- 改寫後：移除 data/*.js、db.js、auth.js、pricing.js、payment.js、舊 shop.js -->
+  <!-- 新增 SDK 與頁面邏輯（順序：ApiClient -> Storage -> AuthClient -> PricingClient -> pages/shop.js） -->
+  <script>window.DS_API_BASE = 'http://127.0.0.1:3000';</script>
+  <script src="sdk/apiClient.js"></script>
+  <script src="sdk/storage.js"></script>
+  <script src="sdk/authClient.js"></script>
+  <script src="sdk/pricingClient.js"></script>
+  <script src="pages/shop.js"></script>
+</body>
+</html>

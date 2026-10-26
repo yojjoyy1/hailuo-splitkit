@@ -1,0 +1,22 @@
+{
+  "name": "hailuo-splitkit",
+  "version": "1.0.0",
+  "description": "Hailuo SplitKit：上傳整份專案，透過 AI 拆成前後端分離，或只切出後端 API",
+  "main": "server.js",
+  "private": true,
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "author": "yojjoyy1",
+  "scripts": {
+    "start": "node server.js",
+    "launch": "node scripts/launch.js",
+    "dev": "node --watch server.js",
+    "start:prod": "node server.js --env=production"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "jszip": "^3.10.1"
+  }
+}

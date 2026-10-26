@@ -1,0 +1,108 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 3000,
+    "bodyLimit": "100mb"
+  },
+  "ai": {
+    "timeoutMs": 900000,
+    "defaultMaxOutputTokens": 16000,
+    "providers": {
+      "openai": {
+        "label": "OpenAI",
+        "baseUrl": "https://api.openai.com/v1",
+        "defaultModel": "gpt-4.1",
+        "models": ["gpt-5", "gpt-5-mini", "gpt-4.1", "gpt-4.1-mini", "gpt-4o"]
+      },
+      "anthropic": {
+        "label": "Anthropic",
+        "baseUrl": "https://api.anthropic.com",
+        "apiVersion": "2023-06-01",
+        "defaultModel": "claude-sonnet-4-5",
+        "models": ["claude-sonnet-4-5", "claude-opus-4-1", "claude-haiku-4-5"]
+      }
+    }
+  },
+  "generation": {
+    "filesPerBatch": 3,
+    "maxPlanFiles": 60,
+    "maxPlanFilesFullstack": 90,
+    "maxSourceCharsPerBatch": 120000,
+    "maxSharedCharsPerBatch": 40000,
+    "maxRetriesPerFile": 2,
+    "maxImages": 10
+  },
+  "upload": {
+    "maxFileBytes": 200000,
+    "maxContextChars": 600000,
+    "ignoreDirs": [
+      "node_modules", ".git", ".svn", ".hg", "dist", "build", "out", ".next", ".nuxt", ".output",
+      "vendor", "target", "coverage", ".idea", ".vscode", "__pycache__", ".venv", "venv",
+      "bin", "obj", ".gradle", "Pods", ".dart_tool", ".cache", "tmp", "logs"
+    ],
+    "ignoreFiles": [
+      "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "composer.lock", "Cargo.lock",
+      "go.sum", "poetry.lock", ".DS_Store", "Thumbs.db"
+    ],
+    "textExtensions": [
+      "js", "jsx", "ts", "tsx", "mjs", "cjs", "vue", "svelte", "astro", "html", "htm", "css", "scss",
+      "sass", "less", "json", "php", "java", "kt", "kts", "go", "py", "rb", "cs", "cpp", "cc", "c",
+      "h", "hpp", "rs", "swift", "dart", "m", "sql", "yml", "yaml", "xml", "md", "txt", "sh", "toml",
+      "ini", "conf", "gradle", "properties", "graphql", "gql", "prisma", "env", "example", "twig",
+      "ejs", "hbs", "pug", "jsp", "aspx", "cshtml", "lua", "scala", "groovy"
+    ],
+    "specialFiles": ["Dockerfile", "Makefile", ".env.example", ".env.sample", "Procfile"]
+  },
+  "languages": [
+    {
+      "id": "nodejs",
+      "label": "Node.js",
+      "frameworks": ["Express.js", "NestJS", "Fastify", "無框架"],
+      "defaultFramework": "Express.js"
+    },
+    {
+      "id": "php",
+      "label": "PHP",
+      "frameworks": ["Laravel", "Leaf PHP", "Slim", "無框架"],
+      "defaultFramework": "Laravel"
+    },
+    {
+      "id": "java",
+      "label": "Java",
+      "frameworks": ["Spring Boot", "Quarkus", "Micronaut", "無框架"],
+      "defaultFramework": "Spring Boot"
+    },
+    {
+      "id": "cpp",
+      "label": "C++",
+      "frameworks": ["Drogon", "Cinatra", "Crow", "Oat++", "無框架"],
+      "defaultFramework": "Drogon"
+    },
+    {
+      "id": "golang",
+      "label": "Golang",
+      "frameworks": ["Gin", "Echo", "Fiber", "Chi", "無框架"],
+      "defaultFramework": "Gin"
+    },
+    {
+      "id": "other",
+      "label": "其他（手填）",
+      "frameworks": ["無框架"],
+      "defaultFramework": "無框架"
+    }
+  ],
+  "securityItems": [
+    { "id": "headers", "label": "安全標頭（Helmet / CSP / HSTS）" },
+    { "id": "cors", "label": "CORS 白名單" },
+    { "id": "rateLimit", "label": "流量限制（Rate Limit）" },
+    { "id": "validation", "label": "輸入驗證與資料清洗" },
+    { "id": "sqli", "label": "SQL Injection 防護（參數化查詢）" },
+    { "id": "xss", "label": "XSS 防護與輸出編碼" },
+    { "id": "auth", "label": "身分驗證（JWT / Token）與權限控管" },
+    { "id": "csrf", "label": "CSRF 防護" },
+    { "id": "ipWhitelist", "label": "IP 白名單 / 黑名單" },
+    { "id": "audit", "label": "稽核日誌與敏感資訊遮罩" },
+    { "id": "errors", "label": "統一錯誤處理（不外洩堆疊資訊）" },
+    { "id": "secrets", "label": "機敏設定以環境變數管理" }
+  ]
+}

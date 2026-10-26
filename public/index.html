@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hailuo SplitKit｜AI 前後端分離工具</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🐚</span>
+      <div>
+        <h1>Hailuo SplitKit</h1>
+        <p>上傳整份專案，AI 拆出後端 API，也可一併產出改寫後的前端</p>
+      </div>
+    </div>
+    <a class="btn ghost" href="/guide.html" target="_blank">📘 啟用說明</a>
+  </header>
+
+  <main class="container">
+    <!-- 1. 主專案 -->
+    <section class="card" id="card-project">
+      <h2><span class="step">1</span>選擇主專案 <span class="badge required">必填</span></h2>
+      <div class="dropzone" id="project-drop">
+        <p class="dz-title">把專案資料夾拖曳到這裡</p>
+        <p class="muted">或</p>
+        <button type="button" class="btn primary" id="project-browse">📁 瀏覽選擇資料夾</button>
+        <input type="file" id="project-input" webkitdirectory directory multiple hidden />
+        <p class="muted small">會自動略過 node_modules、.git、dist 等資料夾與二進位檔，檔案只在本機讀取。</p>
+      </div>
+      <div id="project-summary" class="project-summary hidden"></div>
+    </section>
+
+    <!-- 2. API Key -->
+    <section class="card" id="card-keys">
+      <h2><span class="step">2</span>AI API Key 管理 <span class="badge required" id="keys-required">必填</span></h2>
+      <p class="muted small">支援 OpenAI、Anthropic。Key 寫入專案根目錄的 <code>config.js</code>（不會存進瀏覽器 localStorage），由本機伺服器轉送給 AI 供應商。</p>
+      <div id="keys-list" class="keys-list"></div>
+
+      <form id="key-form" class="key-form">
+        <input type="hidden" id="key-id" />
+        <div class="grid-3">
+          <label>供應商
+            <select id="key-provider"></select>
+          </label>
+          <label>名稱
+            <input type="text" id="key-name" placeholder="例如：公司 OpenAI" />
+          </label>
+          <label>模型
+            <input type="text" id="key-model" list="key-model-list" placeholder="模型名稱" />
+            <datalist id="key-model-list"></datalist>
+          </label>
+        </div>
+        <label>API Key
+          <div class="input-group">
+            <input type="password" id="key-value" placeholder="sk-..." autocomplete="off" />
+            <button type="button" class="btn ghost" id="key-toggle">顯示</button>
+          </div>
+        </label>
+        <details class="advanced">
+          <summary>進階設定（選填）</summary>
+          <div class="grid-2">
+            <label>自訂 Base URL（代理或相容服務）
+              <input type="text" id="key-baseurl" placeholder="留空使用官方網址" />
+            </label>
+            <label>單次最大輸出 Tokens
+              <input type="number" id="key-maxtokens" min="1000" step="1000" placeholder="預設 16000" />
+            </label>
+          </div>
+        </details>
+        <div class="row-actions">
+          <button type="submit" class="btn primary" id="key-save">💾 儲存 Key</button>
+          <button type="button" class="btn ghost hidden" id="key-cancel">取消編輯</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 3. 分離範圍 -->
+    <section class="card">
+      <h2><span class="step">3</span>分離範圍 <span class="badge required">必填</span></h2>
+      <p class="muted small">「切割 API 專案」與「建立 SKILL 架構」都會依此選項調整產出內容。預設只分離後端。</p>
+      <div class="choice-grid">
+        <label class="choice">
+          <input type="radio" name="split-scope" value="backend" checked />
+          <span>
+            <strong>只分離後端</strong>
+            <small>產出獨立 API 專案、前端 SDK 與改接說明。原網頁不會被改寫。</small>
+          </span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="split-scope" value="fullstack" />
+          <span>
+            <strong>前後端一起分離</strong>
+            <small>同時產出可執行的後端，以及已改成呼叫 API 的前端，解壓後就能分開跑。</small>
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <!-- 4. 切割範圍 -->
+    <section class="card">
+      <h2><span class="step">4</span>想切割的部分 <span class="badge optional">選填</span></h2>
+      <p class="muted small">可上傳截圖或用文字說明哪些功能要變成後端 API；都不填就由 AI 自行分析。</p>
+      <div class="dropzone small" id="image-drop">
+        <p>拖曳截圖到這裡、直接 <kbd>Ctrl/⌘ + V</kbd> 貼上，或</p>
+        <button type="button" class="btn ghost" id="image-browse">🖼️ 選擇圖片</button>
+        <input type="file" id="image-input" accept="image/*" multiple hidden />
+      </div>
+      <div id="image-list" class="image-list"></div>
+      <label>文字說明
+        <textarea id="opt-target" rows="3" placeholder="例如：會員登入、訂單列表、商品搜尋要拆成 API；金流的金鑰不能放在前端"></textarea>
+      </label>
+    </section>
+
+    <!-- 4. 簽章 -->
+    <section class="card">
+      <h2><span class="step">5</span>前後端簽章驗證 signKey <span class="badge optional">選填</span></h2>
+      <label class="switch">
+        <input type="checkbox" id="opt-sign-enabled" />
+        <span>API 加入前後端簽章驗證</span>
+      </label>
+      <div id="sign-options" class="sub-options hidden">
+        <div class="radio-row">
+          <label><input type="radio" name="sign-mode" value="auto" checked /> 交給 AI 預設（HMAC-SHA256 + 時間戳 + nonce 防重放）</label>
+          <label><input type="radio" name="sign-mode" value="custom" /> 自行定義</label>
+        </div>
+        <div id="sign-custom" class="hidden">
+          <div class="grid-3">
+            <label>演算法
+              <select id="opt-sign-algorithm">
+                <option>HMAC-SHA256</option>
+                <option>HMAC-SHA512</option>
+                <option>HMAC-SHA1</option>
+                <option>MD5</option>
+                <option>RSA-SHA256</option>
+              </select>
+            </label>
+            <label>簽章 Header
+              <input type="text" id="opt-sign-header" placeholder="X-Sign" />
+            </label>
+            <label>有效秒數
+              <input type="number" id="opt-sign-expire" placeholder="300" min="1" />
+            </label>
+            <label>時間戳 Header
+              <input type="text" id="opt-sign-ts" placeholder="X-Timestamp" />
+            </label>
+            <label>Nonce Header
+              <input type="text" id="opt-sign-nonce" placeholder="X-Nonce" />
+            </label>
+            <label>Secret（會放進 .env 範例）
+              <input type="text" id="opt-sign-secret" placeholder="留空則用環境變數佔位" />
+            </label>
+          </div>
+          <label>簽章組成規則
+            <textarea id="opt-sign-rule" rows="2" placeholder="例如：sign = HMAC(secret, timestamp + nonce + method + path + sortedQuery + bodyJSON)"></textarea>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 語言與框架 -->
+    <section class="card">
+      <h2><span class="step">6</span>後端語言與目標框架 <span class="badge optional">選填</span></h2>
+      <div class="grid-2">
+        <div>
+          <label>後端語言（預設 Node.js）
+            <select id="opt-language"></select>
+          </label>
+          <input type="text" id="opt-language-custom" class="hidden" placeholder="請輸入語言，例如 Python、Rust、C#" />
+        </div>
+        <div>
+          <label>目標框架
+            <select id="opt-framework"></select>
+          </label>
+          <input type="text" id="opt-framework-custom" class="hidden" placeholder="請輸入框架名稱，例如 FastAPI" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 資安 -->
+    <section class="card">
+      <h2><span class="step">7</span>資安防護 <span class="badge optional">選填</span></h2>
+      <label class="switch">
+        <input type="checkbox" id="opt-security-enabled" />
+        <span>API 專案加入資安防護</span>
+      </label>
+      <div id="security-options" class="sub-options hidden">
+        <div id="security-items" class="check-grid"></div>
+        <label>其他資安要求
+          <textarea id="opt-security-custom" rows="2" placeholder="例如：需符合 OWASP Top 10、登入失敗 5 次鎖定 15 分鐘"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <!-- 7. 架構 -->
+    <section class="card">
+      <h2><span class="step">8</span>專案架構說明 <span class="badge optional">選填</span></h2>
+      <textarea id="opt-architecture" rows="3" placeholder="預設：依職責分層（routes / controllers / services / repositories / middlewares / config），每個模組獨立資料夾，好閱讀、好維護、好擴充。"></textarea>
+    </section>
+
+    <!-- 8. 備註 -->
+    <section class="card">
+      <h2><span class="step">9</span>備註 <span class="badge optional">選填</span></h2>
+      <p class="muted small">跟架構比較無關的補充，例如業務背景、部署環境、團隊習慣、資料庫現況。</p>
+      <textarea id="opt-notes" rows="3" placeholder="例如：正式區部署在 AWS，資料庫是 MySQL 8；目前前端直接連 Firebase"></textarea>
+    </section>
+
+    <!-- 動作 -->
+    <section class="actions">
+      <button type="button" class="btn primary big" id="run-api">✂️ 切割 API 專案</button>
+      <button type="button" class="btn secondary big" id="run-skill">🧩 建立 SKILL 架構</button>
+      <button type="button" class="btn danger big hidden" id="run-cancel">⏹ 取消</button>
+    </section>
+    <p id="form-error" class="form-error hidden"></p>
+
+    <!-- 結果 -->
+    <section class="card hidden" id="card-result">
+      <h2 id="result-title">產生進度</h2>
+      <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+      <p class="muted small" id="progress-text"></p>
+      <ol id="log" class="log"></ol>
+      <div id="result-body"></div>
+    </section>
+  </main>
+
+  <div id="preview-modal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <strong id="preview-title"></strong>
+        <div>
+          <button type="button" class="btn ghost" id="preview-copy">複製</button>
+          <button type="button" class="btn ghost" id="preview-close">關閉</button>
+        </div>
+      </div>
+      <pre id="preview-content"></pre>
+    </div>
+  </div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
